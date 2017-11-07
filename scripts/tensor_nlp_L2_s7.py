@@ -3,15 +3,17 @@ import numpy as np
 import tensorflow as tf
 from sqlalchemy import create_engine
 from django.db import connection
-import sys
+import sys,os
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import gc
 
 def run(): 	
 	try:
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
-		sql_query="""select * from nlp2.politicsApp_nndata"""
+		sql_query="""select * from nlp2.politicsApp_nndata_reduced"""
 		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
 		connection.close()
 		engine.dispose()
@@ -30,6 +32,12 @@ def run():
 #	print('nlp_df - original ****** \n',nlp_df)
 #	print('Shape of nlp_df_t after transpose',nlp_df.shape)
 
+#	x = nlp_df.iloc[:,0:len(nlp_df.columns)-2]
+#	y = nlp_df.iloc[:,len(nlp_df.columns)-2:]
+#	print(x)
+#	print(y)
+
+
 	# Split data into train and test - 70:30
 	msk = np.random.rand(len(nlp_df)) < 0.7
 	train_df = nlp_df[msk]
@@ -37,10 +45,11 @@ def run():
 	test_df = nlp_df[~msk]
 #	print(test_df)
 
+
 	def batch(df, trainFlag):
 		if trainFlag == 1:
 			print('Training -------------- 1')
-			new_batch = df.sample(n=100,replace=False)
+			new_batch = df.sample(n=30,replace=False)
 			x_input = np.array(new_batch.iloc[:,0:len(new_batch.columns)-2])
 			y_output = np.array(new_batch.iloc[:,len(new_batch.columns)-2:])
 		else:
@@ -49,9 +58,10 @@ def run():
 			y_output = np.array(df.iloc[:,len(df.columns)-2:])
 		return x_input,y_output
 
+
 	# Each layer hidden nodes
 	nodes_1st=int(len(nlp_df.columns)-2)
-	nodes_2nd=int(len(nlp_df.columns)-2/1000)
+	nodes_2nd=int(len(nlp_df.columns)/2)
 #	nodes_3rd=int(len(nlp_df.columns)/1000)
 	nodes_output=2
 
@@ -93,7 +103,7 @@ def run():
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_,logits=y))
 	
 	# Using Grdient Descent
-	train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+	train_step = tf.train.AdamOptimizer(0.0000001).minimize(cross_entropy)
 
 	# comparison of y and y_
 	correct_prediction = tf.equal(tf.argmax(y,1),tf.argmax(y_,1))
@@ -107,7 +117,7 @@ def run():
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for i in range(100):
+		for i in range(300):
 			# Using training data
 			x_input,y_output = batch(train_df,1)
 #			print('W1',W1.eval())
@@ -125,6 +135,7 @@ def run():
 #		print('W2',W2.eval())
 		test_accuracy = accuracy.eval(feed_dict={x:x_input,y_:y_output,keep_prob:1.0})
 		print('Test Accuracy ', test_accuracy)
+
 
 
 """			

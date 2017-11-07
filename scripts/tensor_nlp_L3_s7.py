@@ -3,15 +3,16 @@ import numpy as np
 import tensorflow as tf
 from sqlalchemy import create_engine
 from django.db import connection
-import sys
+import sys,os
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def run(): 	
 	try:
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
-		sql_query="""select * from nlp2.politicsApp_nndata"""
+		sql_query="""select * from nlp2.politicsApp_nndata_reduced"""
 		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
 		connection.close()
 		engine.dispose()
@@ -51,7 +52,7 @@ def run():
 
 	# Each layer hidden nodes
 	nodes_1st=int(len(nlp_df.columns)-2)
-	nodes_2nd=int(len(nlp_df.columns)/10)
+	nodes_2nd=int(len(nlp_df.columns)/2)
 	nodes_3rd=int(len(nlp_df.columns)/1000)
 	nodes_output=2
 

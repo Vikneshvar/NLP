@@ -13,11 +13,13 @@ class Articles(models.Model):
 class Ngram(models.Model):
 	NgramId = models.AutoField(primary_key = True)
 	Ngram = models.CharField(max_length=100)
+	NgramSize = models.IntegerField(default=0)
 
 class ArticleNgram(models.Model):
 	ArticleNgramId = models.AutoField(primary_key = True)
-	ArticleId = models.ForeignKey(Articles, on_delete=models.CASCADE)
-	NgramId = models.ForeignKey(Ngram, on_delete=models.CASCADE)
+	ArticleId = models.ForeignKey(Articles,related_name='AN_AI')
+	NgramId = models.ForeignKey(Ngram, related_name='AN_NI')
+	NgramSize = models.ForeignKey(Ngram, related_name='AN_NS')
 	Frequency = models.IntegerField(default=0)
 	StdFrequency = models.FloatField(default=0)
 
@@ -25,6 +27,7 @@ class Interaction(models.Model):
 	ArticleNgramId = models.IntegerField(primary_key = True)
 	ArticleId_id = models.IntegerField(default = 0)
 	NgramId_id = models.IntegerField(default = 0)
+	NgramSize = models.IntegerField(default = 0)
 	Frequency = models.IntegerField(default=0)
 	WordCount = models.IntegerField(default=0)
 	StdFrequency = models.FloatField(default=0)

@@ -14,7 +14,7 @@ def run():
 	try:
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
-		sql_query="""select * from nlp2.politicsApp_nndata_pca_reduced"""
+		sql_query="""select * from nlp2.politicsApp_nndata"""
 		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
 		connection.close()
 		engine.dispose()
@@ -31,7 +31,7 @@ def run():
 	nlp_df=nlp_df_t.transpose()
 
 #	print('nlp_df - original ****** \n',nlp_df)
-#	print('Shape of nlp_df_t after transpose',nlp_df.shape)
+	print('Shape of nlp_df_t after transpose',nlp_df.shape)
 
 #	x = nlp_df.iloc[:,0:len(nlp_df.columns)-2]
 #	y = nlp_df.iloc[:,len(nlp_df.columns)-2:]
@@ -49,13 +49,12 @@ def run():
 
 	def batch(df, trainFlag):
 		if trainFlag == 1:
-			print('Training -------------- 1')
-			new_batch = df.sample(n=20,replace=False)
+#			print('Training -------------- 1')
+			new_batch = df.sample(n=30,replace=False)
 			x_input = np.array(new_batch.iloc[:,0:len(new_batch.columns)-2])
 			y_output = np.array(new_batch.iloc[:,len(new_batch.columns)-2:])
 		else:
-			print('Test -------------- 0')
-#			df = df.sample(n=1,replace=False)			
+#			print('Test -------------- 0')			
 			x_input = np.array(df.iloc[:,0:len(df.columns)-2])
 			y_output = np.array(df.iloc[:,len(df.columns)-2:])
 		return x_input,y_output
@@ -105,7 +104,7 @@ def run():
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_,logits=y))
 	
 	# Using Grdient Descent
-	train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+	train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
 
 	# comparison of y and y_
 	correct_prediction = tf.equal(tf.argmax(y,1),tf.argmax(y_,1))
@@ -119,18 +118,40 @@ def run():
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for i in range(10000):
+		for p in range(50):
+#			print(' Iteration ------------------------- ',p)
 			# Using training data
 			x_input,y_output = batch(train_df,1)
 			weight = W1.eval()
-			print('W1',W1.eval())
+#			if i==1:
+#				print('W1--- Initial weights in second loop',W1.eval())
+#			print('x_input shape',x_input.shape)
+#			print('len(x_input)', len(x_input))
+			
 #			print('W2',W2.eval())
 #			print('y1',y1.eval(feed_dict={x:x_input}))
-			train_accuracy.append(accuracy.eval(feed_dict={x:x_input,y_:y_output,keep_prob:1.0}))
-			print('Step %d Training accuracy %g' %(i,train_accuracy[i]))
-			# Backpropagation
-			train_step.run(feed_dict={x:x_input,y_:y_output,keep_prob:0.5})
-		print('Average training accuracy', sum(train_accuracy)/len(train_accuracy))
+
+			# Passing rows(articles) one by one 
+			for i in range(len(x_input)):
+#				print('x_input', x_input)
+#				print('i ', i)
+				x_M = x_input[i,:]
+#				print('x_M shape',x_M.shape)
+				x_M = np.matrix(x_M).T
+				x_M = np.matrix(x_M).T
+#				print('x_M shape after transpose ---',x_M.shape)
+				y_M = y_output[i,:]
+				y_M = np.matrix(y_M).T
+				y_M = np.matrix(y_M).T
+#				print('y_M shape after transpose ---',y_M.shape)
+#				print('x_M',x_M)
+#				print('y_M',y_M)
+				train_accuracy.append(accuracy.eval(feed_dict={x:x_M,y_:y_M,keep_prob:1.0}))
+				print('Step %d Training accuracy %g' %(i,train_accuracy[i]))
+				# Backpropagation
+				train_step.run(feed_dict={x:x_M,y_:y_M,keep_prob:0.5})
+#				print('W1 after optimization',W1.eval())
+		print('Training accuracy in Iteration {} is {}'.format(p,sum(train_accuracy)/len(train_accuracy)))
 
 		# Using test data
 		x_input,y_output = batch(test_df,0)
@@ -140,8 +161,8 @@ def run():
 		print('Test Accuracy ', test_accuracy)
 
 #	w = tf.argmax(weight,1)
-	print('-----Weight',weight)
-	print('-----Weight Shape',weight.shape)
+#	print('-----Weight',weight)
+#	print('-----Weight Shape',weight.shape)
 """
 #		
 		ngrams = Ngram.objects.filter(NgramSize=1)

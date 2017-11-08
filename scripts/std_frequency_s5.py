@@ -11,7 +11,7 @@ def run():
 				round((arng.Frequency/article.WordCount),2), article.Source 
 				from nlp2.politicsApp_articlengram as arng, 
 				nlp2.politicsApp_articles as article where article.ArticleId=arng.ArticleId_id 
-				order by arng.NgramSize asc"""
+				order by arng.NgramSize_id asc"""
 		cur.execute(stmt)
 		connection.commit()
 		print("affected rows {}".format(cur.rowcount))

@@ -1,4 +1,4 @@
-from politicsApp.models import Articles
+from politicsApp.models import Articles, Ngram, ArticleNgram, Interaction
 import os, re, string
 from django.db import connection
 from unidecode import unidecode
@@ -18,7 +18,7 @@ def run():
 		processedText=dict_output.get('string')
 		wordCount=dict_output.get('count')
 		articleId = article.ArticleId
-		Articles.objects.filter(ArticleId=articleId).update(ProcessedText=processedText,WordCount=wordCount)
+#		Articles.objects.filter(ArticleId=articleId).update(ProcessedText=processedText,WordCount=wordCount)
 
 def textClean(rawText):
 	newString = re.sub('[%s]' % string.digits, '', rawText)

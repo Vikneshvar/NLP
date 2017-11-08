@@ -11,18 +11,27 @@ from sklearn.preprocessing import OneHotEncoder
 
 def run():
 
+#	for i in range(5,7):
+#	print('Ngram size',i)
 	interactions = Interaction.objects.all()
+#		interactions = Interaction.objects.filter(NgramSize=i)
 	articles = Articles.objects.all()
 	ngrams = Ngram.objects.all()
-	articleNgrams = ArticleNgram.objects.all()
+#		ngrams = Ngram.objects.filter(NgramSize=i)
 
+	print('len(ngrams)',len(ngrams))
+	print('len(interactions)',len(interactions))
+
+	ngram_list = []
 	ngramId_list = []
 	for ngram in ngrams:
 		ngram_ = ngram.Ngram
 		ngramId = ngram.NgramId
 
 		ngramId_list.append(ngramId)
+#			ngram_list.append(ngram_)
 
+#		ngram_list.append('Source')
 	ngramId_list.append('Source')
 	print('len(articles) ',len(articles))
 	nlp_df = pd.DataFrame(data=0.0, index=np.arange(1,len(articles)+1), columns=ngramId_list)
@@ -84,7 +93,10 @@ def run():
 	try:
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
-		nlp_df_t.to_sql(con=engine, name='politicsApp_nndata',if_exists='replace',index=False)
+#			table_name='politicsApp_nndata_ngram_size_'+str(i)
+		table_name='politicsApp_nndata'
+		print('table_name',table_name)
+		nlp_df_t.to_sql(con=engine, name=table_name,if_exists='replace',index=False)
 		connection.close()
 		engine.dispose()
 	except MySQLdb.IntegrityError as e:

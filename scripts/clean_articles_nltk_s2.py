@@ -9,7 +9,7 @@ from collections import Counter
 
 # Clean the article
 def run():
-	articles = Articles.objects.all()
+	articles = Articles.objects.all()[10:11]
 	for article in articles:
 		print('Raw String: ', article.RawText)
 		unidecode_text = unidecode(article.RawText)
@@ -45,12 +45,21 @@ def textClean(rawText):
 	# Double and single quotes
 	newString = newString.replace('"','.')
 	newString = newString.replace("'",'')
-	newString = newString.lower()
-
+#	newString = newString.lower()
+	print(" \n String:",newString)
 	# 2 to 5 letter abbrevation
-	newString = re.sub(r'([a-z])(\.)([a-z])(\.)',r'\1\3',newString)
-	newString = re.sub(r'([a-z])(\.)([a-z])(\.)([a-z])(\.)',r'\1\3\5',newString)
-	newString = re.sub(r'([a-z])(\.)([a-z])(\.)([a-z])(\.)([a-z])(\.)',r'\1\3\5\7',newString)
+	newString = re.sub(r'([A-Z])(\.)([A-Z])(\.)',toUpper,newString)
+	newString = re.sub(r'([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)',toUpper,newString)
+	newString = re.sub(r'([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)',toUpper,newString)
+	newString = re.sub(r'([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)',toUpper,newString)
+	newString = re.sub(r'([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)([A-Z])(\.)',toUpper,newString)
+
+	newString = re.sub(r'(?<![A-Z])[A-Z]{2,7}(?![A-Z])',toUpper,newString)
+
+	print(" \n newString:",newString)
+	print("\n")
+
+	newString = re.sub(r'(?<![A-Z])[A-Z]{1}[a-z]{1,7}(?![A-Z])',toLower,newString)
 
 	print(" \n newString:",newString)
 	print("\n")
@@ -63,6 +72,16 @@ def textClean(rawText):
 	dict_output['count']=len(tokens)
 
 	return dict_output
-	
+
+def toUpper(match):
+	match = match.group()
+	match = match.replace('.','')
+	acronym = match.upper()
+	return acronym
+
+def toLower(match):
+	match = match.group()
+	lowecase = match.lower()
+	return lowecase	
 
 

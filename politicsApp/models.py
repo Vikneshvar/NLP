@@ -15,6 +15,11 @@ class Ngram(models.Model):
 	Ngram = models.CharField(max_length=100)
 	NgramSize = models.IntegerField(default=0)
 
+class NgramDuplicates(models.Model):
+	NgramId_D = models.AutoField(primary_key = True)
+	Ngram_D = models.CharField(max_length=100)
+	NgramSize_D = models.IntegerField(default=0)
+
 class ArticleNgram(models.Model):
 	ArticleNgramId = models.AutoField(primary_key = True)
 	ArticleId = models.ForeignKey(Articles,related_name='AN_AI')

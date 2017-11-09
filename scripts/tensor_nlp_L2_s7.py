@@ -14,7 +14,7 @@ def run():
 	try:
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
-		sql_query="""select * from nlp2.politicsApp_nndata_pca_reduced"""
+		sql_query="""select * from nlp2.politicsApp_nndata_ngram_size_6"""
 		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
 		connection.close()
 		engine.dispose()
@@ -50,7 +50,7 @@ def run():
 	def batch(df, trainFlag):
 		if trainFlag == 1:
 			print('Training -------------- 1')
-			new_batch = df.sample(n=20,replace=False)
+			new_batch = df.sample(n=40,replace=False)
 			x_input = np.array(new_batch.iloc[:,0:len(new_batch.columns)-2])
 			y_output = np.array(new_batch.iloc[:,len(new_batch.columns)-2:])
 		else:
@@ -119,7 +119,7 @@ def run():
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for i in range(10000):
+		for i in range(50):
 			# Using training data
 			x_input,y_output = batch(train_df,1)
 			weight = W1.eval()

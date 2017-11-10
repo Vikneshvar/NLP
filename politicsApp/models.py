@@ -8,6 +8,7 @@ class Articles(models.Model):
 	Source = models.CharField(max_length=20)
 	RawText = models.TextField(null=False, blank=False)
 	ProcessedText = models.TextField(blank=True)
+	PhrasedText_2 = models.TextField(blank=True)
 	WordCount = models.IntegerField(default=0)
 
 class Ngram(models.Model):

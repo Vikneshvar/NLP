@@ -6,7 +6,7 @@ from politicsApp.models import Articles, Ngram, NgramDuplicates
 
 # Run twice - one for Ngram table and another for NgramDuplicates table
 def run():
-	articles = Articles.objects.all()
+	articles = Articles.objects.filter(Type='Training')
 	gramList = []
 	ngramList = []
 	
@@ -73,8 +73,8 @@ def run():
 #		print(item[0])
 #		print(item[1])		
 		ngram = NgramDuplicates(Ngram_D=item[0],NgramSize_D=item[1])
-#		ngram = Ngram(Ngram=item[0],NgramSize=item[1])
-#		ngram.save()
+		ngram = Ngram(Ngram=item[0],NgramSize=item[1])
+		ngram.save()
 
 
 def word_grams(words, min=1, max=7):

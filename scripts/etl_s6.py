@@ -15,7 +15,7 @@ def run():
 #	print('Ngram size',i)
 	interactions = Interaction.objects.all()
 #		interactions = Interaction.objects.filter(NgramSize=i)
-	articles = Articles.objects.all()
+	articles = Articles.objects.filter(Type='Training')
 	ngrams = Ngram.objects.all()
 #		ngrams = Ngram.objects.filter(NgramSize=i)
 
@@ -94,7 +94,7 @@ def run():
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
 #			table_name='politicsApp_nndata_ngram_size_'+str(i)
-		table_name='politicsApp_nndata'
+		table_name='politicsApp_nndata_latest'
 		print('table_name',table_name)
 		nlp_df_t.to_sql(con=engine, name=table_name,if_exists='replace',index=False)
 		connection.close()

@@ -10,7 +10,7 @@ def run():
 				arng.Frequency,arng.ArticleId_id,arng.NgramSize_id,article.WordCount,
 				round((arng.Frequency/article.WordCount),2), article.Source 
 				from nlp2.politicsApp_articlengram as arng, 
-				nlp2.politicsApp_articles as article where article.ArticleId=arng.ArticleId_id 
+				nlp2.politicsApp_articles  as article where article.ArticleId=arng.ArticleId_id and article.Type='Training'
 				order by arng.NgramSize_id asc"""
 		cur.execute(stmt)
 		connection.commit()

@@ -14,7 +14,7 @@ def run():
 	try:
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
-		sql_query="""select * from nlp2.politicsApp_nndata"""
+		sql_query="""select * from nlp2.politicsApp_nndata_ngram_size_1"""
 		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
 		connection.close()
 		engine.dispose()
@@ -50,7 +50,7 @@ def run():
 	def batch(df, trainFlag):
 		if trainFlag == 1:
 #			print('Training -------------- 1')
-			new_batch = df.sample(n=30,replace=False)
+			new_batch = df.sample(n=5,replace=False)
 			x_input = np.array(new_batch.iloc[:,0:len(new_batch.columns)-2])
 			y_output = np.array(new_batch.iloc[:,len(new_batch.columns)-2:])
 		else:
@@ -104,7 +104,7 @@ def run():
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_,logits=y))
 	
 	# Using Grdient Descent
-	train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
+	train_step = tf.train.AdamOptimizer(0.0001).minimize(cross_entropy)
 
 	# comparison of y and y_
 	correct_prediction = tf.equal(tf.argmax(y,1),tf.argmax(y_,1))
@@ -118,7 +118,7 @@ def run():
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for p in range(50):
+		for p in range(1000):
 #			print(' Iteration ------------------------- ',p)
 			# Using training data
 			x_input,y_output = batch(train_df,1)
@@ -147,11 +147,11 @@ def run():
 #				print('x_M',x_M)
 #				print('y_M',y_M)
 				train_accuracy.append(accuracy.eval(feed_dict={x:x_M,y_:y_M,keep_prob:1.0}))
-				print('Step %d Training accuracy %g' %(i,train_accuracy[i]))
+		#		print('Step %d Training accuracy %g' %(i,train_accuracy[i]))
 				# Backpropagation
 				train_step.run(feed_dict={x:x_M,y_:y_M,keep_prob:0.5})
 #				print('W1 after optimization',W1.eval())
-		print('Training accuracy in Iteration {} is {}'.format(p,sum(train_accuracy)/len(train_accuracy)))
+			print('Training accuracy in Iteration {} is {}'.format(p,sum(train_accuracy)/len(train_accuracy)))
 
 		# Using test data
 		x_input,y_output = batch(test_df,0)

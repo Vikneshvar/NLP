@@ -12,7 +12,7 @@ from gensim.models import Phrases
 def run():
 	articles = Articles.objects.all()
 	sentence_stream = [u'the', u'mayor']
-	bigram = Phrases(sentence_stream, min_count=3, threshold=5)
+	bigram = Phrases(sentence_stream, min_count=3, threshold=4)
 	print('\n bigram',bigram)
 	
 	for article in articles:
@@ -108,10 +108,10 @@ def textClean(rawText,bigram):
 
 	# Count number of words
 #	tokenizer = RegexpTokenizer(r'\w+')
-#	tokens = tokenizer.tokenize(newString)
+#	tokens = tokenizer.tokenize(finalString)
 
 #	dict_output={}
-#	dict_output['string']=newString
+#	dict_output['string']=finalString
 #	dict_output['count']=len(tokens)
 
 	return finalString

@@ -9,7 +9,10 @@ class Articles(models.Model):
 	RawText = models.TextField(null=False, blank=False)
 	ProcessedText = models.TextField(blank=True)
 	PhrasedText_2 = models.TextField(blank=True)
+	SampledText = models.TextField(blank=True)
 	WordCount = models.IntegerField(default=0)
+	FileName = models.TextField(blank=True)
+	Type = models.TextField(blank=True)
 
 class Ngram(models.Model):
 	NgramId = models.AutoField(primary_key = True)

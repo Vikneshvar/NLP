@@ -30,13 +30,13 @@ def run():
 	# Transpose to original dataframe
 	nlp_df=nlp_df_t.transpose()
 
-#	print('nlp_df - original ****** \n',nlp_df)
+	print('nlp_df - original ****** \n',nlp_df)
 	print('Shape of nlp_df_t after transpose',nlp_df.shape)
 
-#	x = nlp_df.iloc[:,0:len(nlp_df.columns)-2]
-#	y = nlp_df.iloc[:,len(nlp_df.columns)-2:]
-#	print(x)
-#	print(y)
+	x = nlp_df.iloc[:,0:len(nlp_df.columns)-2]
+	y = nlp_df.iloc[:,len(nlp_df.columns)-2:]
+	print('input\n',x)
+	print('output \n',y)
 
 
 	# Split data into train and test - 70:30
@@ -121,7 +121,7 @@ def run():
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for p in range(1):
+		for p in range(100):
 #			print(' Iteration ------------------------- ',p)
 			# Using training data
 			x_input,y_output = batch(train_df,1)
@@ -156,15 +156,15 @@ def run():
 #				print('W1 after optimization',W1.eval())
 			print('Training accuracy in Iteration {} is {}'.format(p,sum(train_accuracy)/len(train_accuracy)))
 
-		# Using test data
-		x_input_test,y_output_test = batch(test_df,0)
 #		print('W1',W1.eval())
 #		print('W2',W2.eval())
 		print('x_input shape',x_input.shape)
 		print('W1',W1.eval().shape)
 		print('y1',y1.eval(feed_dict={x:x_input}).shape)
-		print('y',y.eval(feed_dict={x:x_M,y_:y_M,keep_prob:1.0}))		
-		
+		print('y',y.eval(feed_dict={x:x_M,y_:y_M,keep_prob:1.0}))
+
+		# Using test data
+		x_input_test,y_output_test = batch(test_df,0)		
 		test_accuracy = []
 		# Passing rows(articles) one by one for test
 		for i in range(len(x_input_test)):
@@ -190,6 +190,7 @@ def run():
 
 		print('W1 - After Test',W1.eval())
 		print('W2 - After Test',W2.eval())
+
 
 #		test_accuracy = accuracy.eval(feed_dict={x:x_input,y_:y_output,keep_prob:1.0})
 #		print('Test Accuracy ', test_accuracy)

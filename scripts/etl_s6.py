@@ -58,7 +58,7 @@ def run():
 	onehot_encoder = OneHotEncoder(sparse=False)
 	float_encoded = float_encoded.reshape(len(float_encoded), 1)
 	onehot_encoded = onehot_encoder.fit_transform(float_encoded)
-	print(onehot_encoded)
+	print('onehot_encoded \n', onehot_encoded)
 	# Delete Source column as it is going to be encoded
 	del nlp_df['Source']
 	# Create 2 new encoded columns

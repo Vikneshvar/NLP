@@ -14,10 +14,8 @@ def run():
 	sourceName = ''
 	sourcePath = "/Users/Vik/Desktop/Project/NLP_Test/"
 	for subdir, dirs, files in os.walk(sourcePath):
-		for each in dirs:
-			sourceName = each
-			print("Source:",sourceName)
-			sourcedir = os.path.join(sourcePath,sourceName)
+		for categoryName in dirs:
+			sourcedir = os.path.join(sourcePath,categoryName)
 #			print('sourcedir',sourcedir)
 			for textFile in os.listdir(sourcedir):
 				if textFile.endswith(".txt"):			
@@ -26,7 +24,8 @@ def run():
 					for each in textFile:
 						if each.isalpha() == True or each==' ' or each=='.':
 							fileName+=each
-
+					sourceName = categoryName
+					print("Source:",sourceName)
 					print("Filename: ",fileName)
 					f = open(os.path.join(sourcedir,textFile),"r",encoding='utf-8', errors='ignore')
 					rawText = f.read()
@@ -109,9 +108,11 @@ def run():
 	# set_value(row,column,value)
 #	print('sourceName', sourceName)
 	if sourceName == 'Fox':
+		print('Fox')
 		nlp_df['Fox']=1
 		nlp_df['MSNBC']=0
 	else:
+		print('MSNBC')
 		nlp_df['Fox']=0
 		nlp_df['MSNBC']=1
 
@@ -170,10 +171,13 @@ def run():
 	dropout = tf.nn.dropout(y1, keep_prob)
 
 	# Output Probability
-	y_prob = tf.matmul(dropout,W2)+B2
+	y = tf.matmul(dropout,W2)+B2
 	
 	# Final output
-	y = tf.nn.softmax(y_prob)
+	y_prob = tf.nn.softmax(y)
+
+	# comparison of y and y_
+	correct_prediction = tf.equal(tf.argmax(y,1),tf.argmax(y_,1))
 
 	# Get saved model's weights and evaluate
 	# Create save variable to save and restore all the variables.
@@ -194,14 +198,19 @@ def run():
 		print("B1 : %s" % B1_predict)
 		print("W2 : %s" % W2_predict)
 		print("B2 : %s" % B2_predict)
-		y_prob.eval(feed_dict={x:x_M,y_:y_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
+		y.eval(feed_dict={x:x_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
 									B2:B2_predict,keep_prob:1.0})
 		
-		print('y_prob',y_prob.eval(feed_dict={x:x_M,y_:y_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
-									B2:B2_predict,keep_prob:1.0}).shape)
+		print('y',y.eval(feed_dict={x:x_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
+									B2:B2_predict,keep_prob:1.0}))
 
-		print('y',y.eval(feed_dict={x:x_M,y_:y_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
-									B2:B2_predict,keep_prob:1.0}).shape)		
+		y_predicted = y_prob.eval(feed_dict={x:x_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
+									B2:B2_predict,keep_prob:1.0})
+
+		print('y',y_prob.eval(feed_dict={x:x_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
+									B2:B2_predict,keep_prob:1.0}))
+
+		print('correct_prediction',correct_prediction.eval(feed_dict={y:y_predicted,y_:y_M}))
 
 
 

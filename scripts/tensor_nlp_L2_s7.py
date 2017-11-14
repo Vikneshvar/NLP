@@ -14,7 +14,7 @@ def run():
 	try:
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
-		sql_query="""select * from nlp2.politicsApp_nndata_ngram_size_6"""
+		sql_query="""select * from nlp2.politicsApp_nndata_latest"""
 		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
 		connection.close()
 		engine.dispose()
@@ -50,7 +50,7 @@ def run():
 	def batch(df, trainFlag):
 		if trainFlag == 1:
 			print('Training -------------- 1')
-			new_batch = df.sample(n=40,replace=False)
+			new_batch = df.sample(n=25,replace=False)
 			x_input = np.array(new_batch.iloc[:,0:len(new_batch.columns)-2])
 			y_output = np.array(new_batch.iloc[:,len(new_batch.columns)-2:])
 		else:
@@ -105,7 +105,7 @@ def run():
 	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_,logits=y))
 	
 	# Using Grdient Descent
-	train_step = tf.train.AdamOptimizer(0.001).minimize(cross_entropy)
+	train_step = tf.train.AdamOptimizer(0.0001).minimize(cross_entropy)
 
 	# comparison of y and y_
 	correct_prediction = tf.equal(tf.argmax(y,1),tf.argmax(y_,1))
@@ -119,7 +119,7 @@ def run():
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for i in range(50):
+		for i in range(200):
 			# Using training data
 			x_input,y_output = batch(train_df,1)
 			weight = W1.eval()

@@ -13,11 +13,11 @@ def run():
 
 #	for i in range(5,7):
 #	print('Ngram size',i)
-	interactions = Interaction.objects.all()
-#		interactions = Interaction.objects.filter(NgramSize=i)
+#	interactions = Interaction.objects.all()
+	interactions = Interaction.objects.filter(NgramSize=1) 
 	articles = Articles.objects.filter(Type='Training')
-	ngrams = Ngram.objects.all()
-#		ngrams = Ngram.objects.filter(NgramSize=i)
+#	ngrams = Ngram.objects.all()
+	ngrams = Ngram.objects.filter(NgramSize=1) 
 
 	print('len(ngrams)',len(ngrams))
 	print('len(interactions)',len(interactions))
@@ -29,9 +29,9 @@ def run():
 		ngramId = ngram.NgramId
 
 		ngramId_list.append(ngramId)
-#			ngram_list.append(ngram_)
+#		ngram_list.append(ngram_)
 
-#		ngram_list.append('Source')
+#	ngram_list.append('Source')
 	ngramId_list.append('Source')
 	print('len(articles) ',len(articles))
 	nlp_df = pd.DataFrame(data=0.0, index=np.arange(1,len(articles)+1), columns=ngramId_list)

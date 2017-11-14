@@ -6,7 +6,7 @@ from django.db import connection
 
 def run():
 	ngrams = Ngram.objects.all()
-	articles = Articles.objects.filter(Type='Training')
+	articles = Articles.objects.filter(Type='Training')[0:2]
 	ngramIds = []
 	ngramValues = []
 	ngramSize = []
@@ -30,14 +30,20 @@ def run():
 	for i in range(len(ngramIds)):
 		aI.append(articleIds) 
 
+	print('len(ngramIds)',len(ngramIds))
+	print('len(ngramSize)',len(ngramSize))
+	print('len(pT)',len(pT))
+	print('len(aI)',len(aI))
 #   print('ngramIds',ngramIds)
 #   print('aI',aI)
+	
 	# Zip the parameters because pool.map() takes only one iterable
 	params = zip(ngramIds, ngramValues, ngramSize, aI, pT)
 	
 	pool = multiprocessing.Pool()
 	list_articleNgram = pool.map(runSimulation, params)
 #	print('list_articleNgram',list_articleNgram)
+	print('len(list_articleNgram)',len(list_articleNgram))
 
 	print('\n')
 
@@ -45,19 +51,18 @@ def run():
 	for each in list_articleNgram:
 		stmt= """INSERT INTO nlp2.politicsApp_articlengram (NgramId_id, ArticleId_id,NgramSize_id,Frequency,StdFrequency) 
 					VALUES (%s,%s,%s,%s,%s)"""
-		cur.executemany(stmt, each)
+#		cur.executemany(stmt, each)
 		connection.commit()
-	print("affected rows {}".format(cur.rowcount))
-
+#		print("affected rows {}".format(cur.rowcount))
 
 def runSimulation(params):
 	"""This is the main processing function. It will contain whatever
 	code should be run on multiple processors."""
-	ngramId, ngram,ngramSize, aI, pT = params
+	ngramId, ngram, ngramSize, aI, pT = params
 	processedData = []
-	print('ngramId',ngramId)
-	print('ngram',ngram)
-	print('ngramSize',ngramSize)
+#	print('ngramId',ngramId)
+#	print('ngram',ngram)
+#	print('ngramSize',ngramSize)
 #    print('aI',aI)
 
 	list_articleNgram = []
@@ -69,25 +74,21 @@ def runSimulation(params):
 		matches = re.findall(my_regex,eachProcessedText)
 #       print("match count: ", len(matches))
 		
-		# Check for frequency before adding
-		if len(matches)>0:
-			t = (ngramId,pT.index(eachProcessedText)+1,ngramSize,len(matches),0)
-			list_articleNgram.append(t)
-			print('-------------Ngram matched Passed----------------')
+		t = (ngramId,pT.index(eachProcessedText)+1,ngramSize,len(matches),0)
+		list_articleNgram.append(t)
+		no_matches.append(len(matches))
+
+	checkFlag = False
+	for each in no_matches:
+		if each>0:
+			checkFlag = True
+			break
 		else:
-			no_matches.append(len(matches))
-			print('------------------------  Ngram match to article failed --------------------')			
-
-	print('Number of non matches',len(no_matches))
-
+			checkFlag = False
+			 
+	if checkFlag == True:
+		print('Ngram matched to article')
+	else:
+		print('------------------------  Ngram match to article failed --------------------')
+					
 	return list_articleNgram
-
-
-
-"""
-		dict_articleNgram = {}
-		dict_articleNgram["NgramId"] = ngramId
-		dict_articleNgram["ArticleId"] = pT.index(eachProcessedText)+1
-		dict_articleNgram["Frequency"] = len(matches)
-		dict_articleNgram["StdFrequency"] = 0
-"""

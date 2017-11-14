@@ -16,8 +16,8 @@ def run():
 				
 		processedSentenceList = processedText.split('.')
 		phrasedSentenceList = phrasedText.split('.')
-		print('---------',len(processedSentenceList))
-		print('*********',len(phrasedSentenceList))
+#		print('---------',len(processedSentenceList))
+#		print('*********',len(phrasedSentenceList))
 
 #		print('sentenceList:', sentenceList)
 		for sentence in phrasedSentenceList:
@@ -28,10 +28,11 @@ def run():
 				item = item.strip()
 #				print(len(item))
 #				print('item --'+item+'22')
-				if len(item)!=0:
+				if len(item)>1:
 					ngramList.append(item)
 				else:
 					print('False')
+					print('item --'+item+'$$')
 
 #	print("\n *************** ngramList ", ngramList)
 	print('len(ngramList))',len(ngramList))
@@ -72,7 +73,7 @@ def run():
 	for item in ngramList_noDup_dict:
 #		print(item[0])
 #		print(item[1])		
-		ngram = NgramDuplicates(Ngram_D=item[0],NgramSize_D=item[1])
+#		ngram = NgramDuplicates(Ngram_D=item[0],NgramSize_D=item[1])
 		ngram = Ngram(Ngram=item[0],NgramSize=item[1])
 		ngram.save()
 

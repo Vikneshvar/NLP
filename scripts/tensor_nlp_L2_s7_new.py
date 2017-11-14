@@ -14,7 +14,7 @@ def run():
 	try:
 		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
 		connection = engine.connect()
-		sql_query="""select * from nlp2.politicsApp_nndata_ngram_size_1"""
+		sql_query="""select * from nlp2.politicsApp_nndata_latest"""
 		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
 		connection.close()
 		engine.dispose()
@@ -50,7 +50,7 @@ def run():
 	def batch(df, trainFlag):
 		if trainFlag == 1:
 #			print('Training -------------- 1')
-			new_batch = df.sample(n=5,replace=False)
+			new_batch = df.sample(n=25,replace=False)
 			x_input = np.array(new_batch.iloc[:,0:len(new_batch.columns)-2])
 			y_output = np.array(new_batch.iloc[:,len(new_batch.columns)-2:])
 		else:
@@ -112,13 +112,16 @@ def run():
 	# Accuracy
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32))
 
+	# Create save variable to save and restore all the variables.
+	saver = tf.train.Saver()
+
 	# Use session to initialize all variables
 	with tf.Session() as sess:
 		sess.run(tf.global_variables_initializer())	
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for p in range(1000):
+		for p in range(1):
 #			print(' Iteration ------------------------- ',p)
 			# Using training data
 			x_input,y_output = batch(train_df,1)
@@ -154,41 +157,45 @@ def run():
 			print('Training accuracy in Iteration {} is {}'.format(p,sum(train_accuracy)/len(train_accuracy)))
 
 		# Using test data
-		x_input,y_output = batch(test_df,0)
+		x_input_test,y_output_test = batch(test_df,0)
 #		print('W1',W1.eval())
 #		print('W2',W2.eval())
-		test_accuracy = accuracy.eval(feed_dict={x:x_input,y_:y_output,keep_prob:1.0})
-		print('Test Accuracy ', test_accuracy)
-
-#	w = tf.argmax(weight,1)
-#	print('-----Weight',weight)
-#	print('-----Weight Shape',weight.shape)
-"""
-#		
-		ngrams = Ngram.objects.filter(NgramSize=1)
-		ngram_list = []
-		for ngram in ngrams:
-			ngram_ = ngram.Ngram
-			ngram_list.append(ngram_)
-
-#		ngram_list.reshape()
-
-		nlp_df = pd.DataFrame(data=w, index=ngram_list, columns=['Weights'])
-
-		print('Max weight word',nlp_df['Weights'].max())
-		print('Min weight word',nlp_df['Weights'].min())
-
-		print('Above average weight word',nlp_df['Weights']>nlp_df['Weights'].mean().value)
-
+		print('x_input shape',x_input.shape)
+		print('W1',W1.eval().shape)
+		print('y1',y1.eval(feed_dict={x:x_input}).shape)
+		print('y',y.eval(feed_dict={x:x_M,y_:y_M,keep_prob:1.0}))		
+		
+		test_accuracy = []
+		# Passing rows(articles) one by one for test
+		for i in range(len(x_input_test)):
+#			print('x_input', x_input)
+#			print('i ', i)
+			x_M = x_input_test[i,:]
+#			print('x_M shape',x_M.shape)
+			x_M = np.matrix(x_M).T
+			x_M = np.matrix(x_M).T
+#			print('x_M shape after transpose ---',x_M.shape)
+			y_M = y_output_test[i,:]
+			y_M = np.matrix(y_M).T
+			y_M = np.matrix(y_M).T
+#			print('y_M shape after transpose ---',y_M.shape)
+#			print('x_M',x_M)
+#			print('y_M',y_M)
+			test_accuracy.append(accuracy.eval(feed_dict={x:x_M,y_:y_M,keep_prob:1.0}))
+#			print('Step %d Training accuracy %g' %(i,train_accuracy[i]))
 			
-			print('x shape',(x.eval(feed_dict={x:x_input})).shape)
-			print('y_',y_.eval(feed_dict={y_:y_output}))
-			print('W1',W1.eval())
-			print('B1',B1.eval())
-			print('y1',y1.eval(feed_dict={x:x_input}))
-			print('W2',W2.eval())
-			print('B2',B2.eval())
-			print('correct_prediction',correct_prediction.eval(feed_dict={x:x_input,y_:y_output,keep_prob:1.0}))
+#			print('W1 after optimization',W1.eval())
+		print('Test accuracy is {}'.format(sum(test_accuracy)/len(test_accuracy)))
 
-"""	
+
+		print('W1 - After Test',W1.eval())
+		print('W2 - After Test',W2.eval())
+
+#		test_accuracy = accuracy.eval(feed_dict={x:x_input,y_:y_output,keep_prob:1.0})
+#		print('Test Accuracy ', test_accuracy)
+
+		# Save the variables to the disk
+		save_path = saver.save(sess,"/tmp/model.ckpt")
+		print('Model saved in file: %s' % save_path)
+
 

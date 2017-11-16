@@ -9,34 +9,23 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import gc
+from memory_profiler import profile
+import psutil
 
-def run(): 	
-	try:
-		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
-		connection = engine.connect()
-		sql_query="""select * from nlp2.politicsApp_nndata_latest"""
-		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
-		connection.close()
-		engine.dispose()
-	except:
-		e = sys.exc_info()[0]
-		print('Exception occured', e)
-	finally:
-		print('Successfully read the table')
+@profile
+def run(): 
+#	print('Garbage collector enabled',gc.isenabled())
 
-#	print('nlp_df_t \n',nlp_df_t)
-#	print('Shape of nlp_df_t got from db',nlp_df_t.shape)
+	# Function to get data from DB
+	nlp_df = getDataFromDB()	
 
-	# Transpose to original dataframe
-	nlp_df=nlp_df_t.transpose()
+#	print('nlp_df - original ****** \n',nlp_df)
+#	print('Shape of nlp_df_t after transpose',nlp_df.shape)
 
-	print('nlp_df - original ****** \n',nlp_df)
-	print('Shape of nlp_df_t after transpose',nlp_df.shape)
-
-	x = nlp_df.iloc[:,0:len(nlp_df.columns)-2]
-	y = nlp_df.iloc[:,len(nlp_df.columns)-2:]
-	print('input\n',x)
-	print('output \n',y)
+#	x = nlp_df.iloc[:,0:len(nlp_df.columns)-2]
+#	y = nlp_df.iloc[:,len(nlp_df.columns)-2:]
+#	print('input\n',x)
+#	print('output \n',y)
 
 
 	# Split data into train and test - 70:30
@@ -45,19 +34,6 @@ def run():
 #	print(train_df)
 	test_df = nlp_df[~msk]
 #	print(test_df)
-
-
-	def batch(df, trainFlag):
-		if trainFlag == 1:
-#			print('Training -------------- 1')
-			new_batch = df.sample(n=25,replace=False)
-			x_input = np.array(new_batch.iloc[:,0:len(new_batch.columns)-2])
-			y_output = np.array(new_batch.iloc[:,len(new_batch.columns)-2:])
-		else:
-#			print('Test -------------- 0')			
-			x_input = np.array(df.iloc[:,0:len(df.columns)-2])
-			y_output = np.array(df.iloc[:,len(df.columns)-2:])
-		return x_input,y_output
 
 
 	# Each layer hidden nodes
@@ -117,15 +93,19 @@ def run():
 
 	# Use session to initialize all variables
 	with tf.Session() as sess:
+		print('Hi 4444444')
 		sess.run(tf.global_variables_initializer())	
+		print('Hi 3333333')
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for p in range(100):
+		for p in range(10):
 #			print(' Iteration ------------------------- ',p)
 			# Using training data
+
 			x_input,y_output = batch(train_df,1)
-			weight = W1.eval()
+
+#			weight = W1.eval()
 #			if i==1:
 #				print('W1--- Initial weights in second loop',W1.eval())
 #			print('x_input shape',x_input.shape)
@@ -158,10 +138,10 @@ def run():
 
 #		print('W1',W1.eval())
 #		print('W2',W2.eval())
-		print('x_input shape',x_input.shape)
-		print('W1',W1.eval().shape)
-		print('y1',y1.eval(feed_dict={x:x_input}).shape)
-		print('y',y.eval(feed_dict={x:x_M,y_:y_M,keep_prob:1.0}))
+#		print('x_input shape',x_input.shape)
+#		print('W1',W1.eval().shape)
+#		print('y1',y1.eval(feed_dict={x:x_input}).shape)
+#		print('y',y.eval(feed_dict={x:x_M,y_:y_M,keep_prob:1.0}))
 
 		# Using test data
 		x_input_test,y_output_test = batch(test_df,0)		
@@ -188,8 +168,8 @@ def run():
 		print('Test accuracy is {}'.format(sum(test_accuracy)/len(test_accuracy)))
 
 
-		print('W1 - After Test',W1.eval())
-		print('W2 - After Test',W2.eval())
+#		print('W1 - After Test',W1.eval())
+#		print('W2 - After Test',W2.eval())
 
 
 #		test_accuracy = accuracy.eval(feed_dict={x:x_input,y_:y_output,keep_prob:1.0})
@@ -197,6 +177,42 @@ def run():
 
 		# Save the variables to the disk
 		save_path = saver.save(sess,"/tmp/model.ckpt")
-		print('Model saved in file: %s' % save_path)
+#		print('Model saved in file: %s' % save_path)
+
+def batch(df, trainFlag):
+	if trainFlag == 1:
+#		print('Training -------------- 1')
+		new_batch = df.sample(n=25,replace=False)
+		x_input = np.array(new_batch.iloc[:,0:len(new_batch.columns)-2])
+		y_output = np.array(new_batch.iloc[:,len(new_batch.columns)-2:])
+	else:
+#		print('Test -------------- 0')			
+		x_input = np.array(df.iloc[:,0:len(df.columns)-2])
+		y_output = np.array(df.iloc[:,len(df.columns)-2:])
+	return x_input,y_output
+
+def getDataFromDB():
+	try:
+		engine = create_engine("mysql+mysqldb://root:vik123@localhost:3306/nlp2")
+		connection = engine.connect()
+		sql_query="""select * from nlp2.politicsApp_nndata_latest"""
+		nlp_df_t = pd.read_sql_query(con=engine,sql=sql_query)
+		connection.close()
+		engine.dispose()
+
+#		print('nlp_df_t \n',nlp_df_t)
+#		print('Shape of nlp_df_t got from db',nlp_df_t.shape)
+
+		# Transpose to original dataframe
+		nlp_df=nlp_df_t.transpose()
+
+	except:
+		e = sys.exc_info()[0]
+		print('In Exception occured', e)
+	finally:
+		print('Successfully read the table')
+	
+	return nlp_df
+
 
 

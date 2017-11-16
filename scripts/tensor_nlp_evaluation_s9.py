@@ -1,3 +1,4 @@
+from politicsApp.models import Ngram
 import tensorflow as tf
 import sys,os
 from sqlalchemy import create_engine
@@ -79,49 +80,34 @@ def run():
 		B1_predict = B1.eval()
 		W2_predict = W2.eval()
 		B2_predict = B2.eval()
-		print("W1 : ",W1_predict)
-		print("B1 : %s" % B1_predict)
-		print("W2 : %s" % W2_predict)
-		print("B2 : %s" % B2_predict)
-		y.eval(feed_dict={x:x_M,y_:y_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
-									B2:B2_predict,keep_prob:1.0})
-		
-		print('y',y.eval(feed_dict={x:x_M,y_:y_M,W1:W1_predict,W2:W2_predict,B1:B1_predict,
-									B2:B2_predict,keep_prob:1.0}).shape)		
+		print("W1_predict.shape : ",W1_predict.shape)
+		print("B1_predict.shape : ", B1_predict.shape)
+		print("W2_predict.shape : ", W2_predict.shape)
+		print("B2_predict.shape : ", B2_predict.shape)
+		print("W1_predict : ",W1_predict)
+#		print("B1 : ", B1_predict)
+#		print("W2 : ", W2_predict.shape)
+#		print("B2 : ", B2_predict.shape)
 
+	ngrams = Ngram.objects.filter(NgramSize=1)
+	ngram_list = []
+	for ngram in ngrams:
+		ngram_ = ngram.Ngram
+		ngram_list.append(ngram_)
 
-""" # Check weights of the ngram words
+	w1_df = pd.DataFrame(data=W1_predict, index=ngram_list, columns=[i for i in np.arange(4521)])
+	print('w1_df: \n',w1_df)
 
-#	w = tf.argmax(weight,1)
-#	print('-----Weight',weight)
-#	print('-----Weight Shape',weight.shape)
+	b1_df = pd.DataFrame(data=B1_predict, index=[i for i in np.arange(4521)], columns=["B1"])
+#	print('b1_df: \n',b1_df)	
 
-#		
-		ngrams = Ngram.objects.filter(NgramSize=1)
-		ngram_list = []
-		for ngram in ngrams:
-			ngram_ = ngram.Ngram
-			ngram_list.append(ngram_)
+	w2_df = pd.DataFrame(data=W2_predict, index=[i for i in np.arange(4521)], columns=[i for i in np.arange(2)])
+#	print('w2_df: \n',w2_df)
 
-#		ngram_list.reshape()
+	b2_df = pd.DataFrame(data=B2_predict, index=[i for i in np.arange(2)], columns=["B2"])
+#	print('b2_df: \n',b2_df)	
 
-		nlp_df = pd.DataFrame(data=w, index=ngram_list, columns=['Weights'])
+	print('Max weight ngram \n',w1_df.sum(axis=1).max())
 
-		print('Max weight word',nlp_df['Weights'].max())
-		print('Min weight word',nlp_df['Weights'].min())
-
-		print('Above average weight word',nlp_df['Weights']>nlp_df['Weights'].mean().value)
-
-			
-			print('x shape',(x.eval(feed_dict={x:x_input})).shape)
-			print('y_',y_.eval(feed_dict={y_:y_output}))
-			print('W1',W1.eval())
-			print('B1',B1.eval())
-			print('y1',y1.eval(feed_dict={x:x_input}))
-			print('W2',W2.eval())
-			print('B2',B2.eval())
-			print('correct_prediction',correct_prediction.eval(feed_dict={x:x_input,y_:y_output,keep_prob:1.0}))
-
-"""	
 
 	

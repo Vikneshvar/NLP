@@ -96,6 +96,7 @@ def run():
 		print('Hi 4444444')
 		sess.run(tf.global_variables_initializer())	
 		print('Hi 3333333')
+		
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []

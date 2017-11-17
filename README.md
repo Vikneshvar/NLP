@@ -5,7 +5,7 @@ Python Django Web Application framework is used.
 
 Set up the MySQL database
 
-Follow the order sequence below to execute each python files in scripts folder:
+Follow the order sequence below to execute each python files present in scripts folder:
 
 1. insert_articles_s1.py
 2. clean_articles_nltk_combined_s2.py

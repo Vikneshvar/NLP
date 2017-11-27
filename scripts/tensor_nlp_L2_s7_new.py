@@ -111,7 +111,7 @@ def run():
 		# Run the algorithm - On each iteration, batch of 25 articles goes in network 
 		# Feed forward and back	propagaion happens 	
 		train_accuracy = []
-		for p in range(100):
+		for p in range(125):
 #			print(' Iteration ------------------------- ',p)
 			# Using training data
 

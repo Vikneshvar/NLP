@@ -1,4 +1,4 @@
-Summary:
+# Summary:
 
 The usage of certain words, phrases, clauses, abbreviations, and references when conveying a message through the physical or digital medium may unknowingly associate the company with a particular political ideology. It may create a negative impact on the minds of the readers supporting other political ideas. As a result, some segment of the population might not accept the product thereby hampering the sales and growth of the company.
 
@@ -6,7 +6,7 @@ A survey was conducted by SurveyMonkey and Fortune on 10,000 U.S adults to ident
 
 Using Natural language processing and neural networks algorithms, I have built software that can classify the political bias of a written text. This software has achieved 90% accuracy in classifying a document as liberally or conservatively biased.
 
-# NLP
+# Steps to run:
 NLP for Political polarization
 
 Python Django Web Application framework is used.
